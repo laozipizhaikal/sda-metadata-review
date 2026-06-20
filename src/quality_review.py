@@ -5,9 +5,9 @@ from datetime import datetime
 
 Base_Dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..") 
 
-subs = pd.read_csv(os.path.join(Base_DIR, 'data/metadata_submissions.csv'))
+subs = pd.read_csv(os.path.join(Base_Dir, 'data/metadata_submissions.csv'))
 
-tracker = pd.read_csv(os.path.join(Base_DIR, 'data/compliance_tracker.csv'))
+tracker = pd.read_csv(os.path.join(Base_Dir, 'data/compliance_tracker.csv'))
 
 # Check Integrity of the Data 
 
@@ -109,14 +109,14 @@ for _, row in subs.iterrows():
     clean_df = pd.DataFrame(clean_rows)
 
     if not flagged_df.empty:
-        flagged_df[['submission_id', 'department', 'dataset_title', 'issues']].to_csv(os.path.join(Base_DIR, 'data/processed/quality_flags.csv'), index=False)
+        flagged_df[['submission_id', 'department', 'dataset_title', 'issues']].to_csv(os.path.join(Base_Dir, 'data/processed/quality_flags.csv'), index=False)
     else:
-        pd.DataFrame(columns=['submission_id', 'department', 'dataset_title', 'issues']).to_csv(os.path.join(Base_DIR, 'data/processed/quality_flags.csv'), index=False)
+        pd.DataFrame(columns=['submission_id', 'department', 'dataset_title', 'issues']).to_csv(os.path.join(Base_Dir, 'data/processed/quality_flags.csv'), index=False)
 
     if not clean_df.empty:
-        clean_df.to_csv(os.path.join(Base_DIR, 'data/processed/clean_submissions.csv'), index=False)
+        clean_df.to_csv(os.path.join(Base_Dir, 'data/processed/clean_submissions.csv'), index=False)
     else:
-        subs.iloc[0:0].to_csv(os.path.join(Base_DIR, 'data/processed/clean_submissions.csv'), index=False)
+        subs.iloc[0:0].to_csv(os.path.join(Base_Dir, 'data/processed/clean_submissions.csv'), index=False)
 
 
 flagged_ids = set(flagged_df['submission_id']) if not flagged_df.empty else set()
@@ -161,10 +161,10 @@ if not flagged_df.empty:
 
 issue_counts = pd.Series(all_issues).value_counts() if all_issues else pd.Series(dtype=int)
 
-os.makedirs(os.path.join(Base_DIR, 'data/processed'), exist_ok=True)
+os.makedirs(os.path.join(Base_Dir, 'data/processed'), exist_ok=True)
 
 
-summary_file_path = os.path.join(Base_DIR, 'data/processed/review_summary.txt')
+summary_file_path = os.path.join(Base_Dir, 'data/processed/review_summary.txt')
 
 with open(summary_file_path, 'w', encoding='utf-8') as f:
     f.write(f"Metadata Quality Report\n")
@@ -176,9 +176,9 @@ with open(summary_file_path, 'w', encoding='utf-8') as f:
     for iss, cnt in issue_counts.items():
         f.write(f"- {iss}: {cnt}\n")
 
-flagged_df.to_pickle(os.path.join(Base_DIR, 'data/processed/flagged_df.pkl'))
+flagged_df.to_pickle(os.path.join(Base_Dir, 'data/processed/flagged_df.pkl'))
 
 dict = {'Ready to Approve':ready_to_approve ,'Misapproved':mis_approved}
 to_check = pd.DataFrame(dict)
 
-to_check.to_csv(os.path.join(Base_DIR, 'data/processed/to_check.csv'), index=False)
+to_check.to_csv(os.path.join(Base_Dir, 'data/processed/to_check.csv'), index=False)
