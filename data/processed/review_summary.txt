@@ -1,0 +1,13 @@
+Metadata Quality Report
+=======================
+Total Submissions: 25 
+Passing Submissions: 14 (56%)
+Failing Submissions: 11 (44%)
+Most Common Issue Types:
+- Missing data owner name: 4
+- DPDP flag inconsistent: 4
+- Description missing / inadequate: 2
+- Record count missing: 2
+- Classification invalid/missing: 2
+- Last updated date format invalid: 1
+- Submission date format invalid: 1

@@ -1,0 +1,11 @@
+# Dependencies required to run the scripts from a fresh environment
+name: sad_assignment
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - sspyder-kernels
+  - pandas>=2.1
+  - streamlit>=1.32
+  - plotly
