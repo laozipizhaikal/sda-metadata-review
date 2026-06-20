@@ -1,6 +1,6 @@
 ## Live Dashboard
-Live streamlit dashboard can be accessed at [streamlit cloud link](https://sda-metadata-review-santhosh-saravanan.streamlit.app/)
----
+Live streamlit dashboard can be accessed  [here](https://sda-metadata-review-santhosh-saravanan.streamlit.app/)
+
 ## How to
 Run the scripts privided in tconsole / python terminal from the root
 ### Run Scripts
