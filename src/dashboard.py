@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import plotly.express as px
 
-Base_Dir = r'D:\Personal\Applications\ISB_SDA_UttarPradesh\Assignment\sda-metadata-review'
+Base_Dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..") 
 
 # 1. Page Configuration
 st.set_page_config(

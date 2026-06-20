@@ -4,7 +4,7 @@ import os
 
 current_date = pd.to_datetime('2026-04-25')
 
-Base_Dir = r'D:\Personal\Applications\ISB_SDA_UttarPradesh\Assignment\sda-metadata-review'
+Base_Dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..") 
 
 subs = pd.read_csv(os.path.join(Base_Dir, 'data/metadata_submissions.csv'))
 
