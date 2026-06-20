@@ -2,8 +2,13 @@ import pandas as pd
 import os
 
 
-current_date = pd.to_datetime('2026-04-25')
+current_date = pd.to_datetime('2026-04-25') # update reference date
 
+# For live data following code to be used
+# from datetime import date
+# current_date = date.today().isoformat()
+
+# import files
 Base_Dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..") 
 
 subs = pd.read_csv(os.path.join(Base_Dir, 'data/metadata_submissions.csv'))
@@ -12,11 +17,16 @@ tracker = pd.read_csv(os.path.join(Base_Dir, 'data/compliance_tracker.csv'))
 
 flagged_df = pd.read_pickle(os.path.join(Base_Dir, 'data/processed/flagged_df.pkl'))
 
+# clean submission id - remove trailing white spaces etc.
+
 subs['submission_id'] = subs['submission_id'].astype(str).str.strip()
 tracker['submission_id'] = tracker['submission_id'].astype(str).str.strip()
 
+# create a merged dataframe
 merged = pd.merge(subs, tracker, on='submission_id', how='left', suffixes=('_meta', '_tracker'))
 merged['follow_up_date_dt'] = pd.to_datetime(merged['follow_up_date'], errors='coerce')
+
+## 2.1 Department-Level Compliance Table
 
 dept_groups = merged.groupby('department_meta')
 dept_report = []
@@ -31,7 +41,7 @@ for dept, group in dept_groups:
 
     # Follow-up metric
     if pending_count == 0:
-        follow_up_status = "N/A" 
+        follow_up_status = "Not Required" 
     else:
         follow_ups_sent = pending_group['follow_up_sent'].str.strip().str.lower() == 'yes'
         if follow_ups_sent.all():
@@ -67,6 +77,7 @@ for dept, group in dept_groups:
 dept_report_df = pd.DataFrame(dept_report).sort_values(by='% Approved', ascending=True)
 dept_report_df.to_csv(os.path.join(Base_Dir, 'data/processed/dept_report.csv'), index=False)
 
+# 2.2 Issue Type Analysis
 pending_merged = merged[merged['final_status'].str.strip().str.lower() != 'approved']
 
 issue_tracking = {}
@@ -96,6 +107,7 @@ for _, p_row in pending_merged.iterrows():
         if has_no_response:
             issue_tracking[iss]['non_response_count'] += 1
 
+# 2.3 DPDP Compliance Flag
 dpdp_yes = merged[merged['dpdp_personal_data'].str.strip().str.lower() == 'yes']
 dpdp_violators = []
 

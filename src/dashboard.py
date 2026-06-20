@@ -3,20 +3,13 @@ import pandas as pd
 import os
 import plotly.express as px
 
+# Section 3: Compliance Dashboard
+
+# Load Data
 Base_Dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..") 
 
-# 1. Page Configuration
-st.set_page_config(
-    page_title="Data Governance Registry Dashboard",
-    page_icon="🛡️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-# 2. Paths (Matching your script paths)
-
-
-@st.cache_data #(ttl=300)
+@st.cache_data #(ttl=300) cache refresh not needed in local, can be refreshed manually on need
 def load_data():
     """Load data safely, handling missing or empty files gracefully."""
     try:
@@ -38,9 +31,19 @@ def load_data():
 
 subs, tracker, quality_flags, clean_subs, comp_report, merged = load_data()
 
+# 1. Page Configuration
+st.set_page_config(
+    page_title="Metadata Submission Status - SDA UP",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Header block
-st.title("🛡️ Data Governance Registry Overview")
-st.markdown("An active monitoring interface built for the **Data Governance Lead** to track metadata health, DPDP compliance, and department engagement.")
+st.title("Metadata Submission Status - SDA UP")
+st.markdown("Interactive Dashboard to track metadata status, DPDP compliance, and department response")
+
+#refresh data button
 if st.button("🔄 Refresh data"):
     load_data.clear()
     st.rerun()
@@ -50,8 +53,10 @@ st.markdown("---")
 # ==============================================================================
 # PANEL 1: OVERVIEW METRICS
 # ==============================================================================
-st.subheader("📋 Panel 1: At-a-Glance Overview")
 
+st.subheader("Progress Overview")
+
+# calculation
 total_submissions = len(subs)
 
 approved_series = tracker['final_status'].str.strip().str.lower() == 'approved'
@@ -62,6 +67,7 @@ total_pending = len(tracker) - total_approved
 pct_pending = (total_pending / total_submissions * 100) if total_submissions > 0 else 0
 
 dpdp_yes = merged[merged['dpdp_personal_data'].str.strip().str.lower() == 'yes']
+
 dpdp_violations = 0
 for _, row in dpdp_yes.iterrows():
     class_ok = str(row.get('data_classification')).strip() in ['Restricted', 'Confidential']
@@ -69,6 +75,7 @@ for _, row in dpdp_yes.iterrows():
     if not (class_ok and steward_ok):
         dpdp_violations += 1
 
+# charting
 row1 = st.container(horizontal=True)
 
 with row1:
@@ -77,40 +84,28 @@ with row1:
     st.metric("Pending Submissions", f"{total_pending}", f"{pct_pending:.1f}% of total", delta_color="inverse")
     st.metric("DPDP Compliance Issues", f"{dpdp_violations}", height = "stretch")    
 
-# m1, m2 = st.columns(2)
-# m3, m4 = st.columns(2)
-
-# m1.metric("Total Submissions Received", f"{total_submissions}", border=True)
-# m2.metric("Approved Submissions", f"{total_approved}", f"{pct_approved:.1f}% of total", border=True)
-# m3.metric("DPDP Compliance Issues", f"{dpdp_violations}", border=True)
-# m4.metric("Pending Submissions", f"{total_pending}", f"{pct_pending:.1f}% of total", delta_color="inverse", border=True)
-
-#if dpdp_violations > 0:
-#    m4.metric("DPDP Compliance Issues", f"{dpdp_violations}", "Action Needed", delta_color="inverse")
-#else:
-#    m4.metric("💥 DPDP Non-Compliant", "0", "All Clear", delta_color="normal")
-
-# if untracked_count != 0:
-#    st.caption(
-#        f"⚠️ Note: {abs(untracked_count)} submission(s) "
-#        f"{'have no matching tracker entry' if untracked_count > 0 else 'in the tracker have no matching submission'} "
-#        "— approval percentages above are based on tracked records only."
-#    ) 
-
 st.markdown("---")
 
 # ==============================================================================
 # PANEL 2: DEPARTMENT STATUS
 # ==============================================================================
-st.subheader("🏢 Panel 2: Department-wise Compliance Metrics")
+
+st.subheader("Panel 2: Department-wise Compliance Metrics")
 
 all_departments = sorted(comp_report['Department'].unique()) if 'Department' in comp_report.columns else []
+
 selected_depts = st.multiselect("Filter by Department(s):", options=all_departments, default=all_departments)
 
-filtered_comp = comp_report[comp_report['Department'].isin(selected_depts)]
+status_list = comp_report['Follow-up Sent'].astype(str)
 
-#  col1, col2 = st.columns([3, 2])
-st.markdown("**Interactive Performance Sheet** (Click column headers to sort)")
+all_status = sorted(status_list.unique()) if 'Follow-up Sent' in comp_report.columns else []
+
+selected_status = st.multiselect("Filter by Follow-up Status: ", options=all_status, default=all_status)
+
+filtered_comp = comp_report[comp_report['Department'].isin(selected_depts) & comp_report['Follow-up Sent'].isin(selected_status)]
+# filtered_comp = comp_report[comp_report['Follow-up Sent'].isin(selected_status)]  
+
+st.markdown("**Department Status** (Click column headers to sort)")
 row2 = st.container(horizontal=True)
 
 with row2:
@@ -127,7 +122,7 @@ with row3:
             x='Department',
             y=['Approved', 'Pending'],
             # color='% Approved',
-            title="Submission volume by Department (Colored by % Approved)",
+            title="Submission volume by Department ",
             # color_continuous_scale=px.colors.diverging.RdYlGn
         )
         st.plotly_chart(fig_dept, width="stretch")
@@ -168,14 +163,8 @@ if all_issues:
         fig_issues.update_yaxes(showticklabels=False)
         st.plotly_chart(fig_issues, width="stretch")
         
-    # with col_expl:
-    #     st.markdown("#### 💡 Governance Actionable Insights")
-    #     st.info(
-    #         "Use this panel to gauge where departments struggle. If **'Description inadequate'** or "
-    #         "**'Classification invalid/missing'** dominate, you should arrange localized capacity-building workshops or supply documentation toolkits."
-    #     )
 else:
-    st.success("🎉 Outstanding! No quality flags or systemic validation flaws detected in pending submissions.")
+    st.success("No quality flags or systemic validation flaws detected in pending submissions.")
 
 st.markdown("---")
 

@@ -1,8 +1,9 @@
+# import packages
 import pandas as pd
 import os
 from datetime import datetime
 
-
+# Import data
 Base_Dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..") 
 
 subs = pd.read_csv(os.path.join(Base_Dir, 'data/metadata_submissions.csv'))
@@ -32,18 +33,23 @@ if missing_subs:
 if missing_tracker:
     raise ValueError(f"compliance_tracker.csv is missing columns: {sorted(missing_tracker)}")
 
+# clean submission id - remove trailing white spaces etc.
+
 subs['submission_id'] = subs['submission_id'].str.strip()
 tracker['submission_id'] = tracker['submission_id'].str.strip()
 
-current_date = pd.to_datetime('2026-06-18')
-
+# declare valid list 
 Valid_Classifications = ['Public', 'Restricted', 'Confidential']
 DPDP_Valid_Classifications = ['Restricted', 'Confidential']
 
 flagged_rows = []
 clean_rows = []
 
+###### 
+# Section 1: Metadata Quality Review
+######
 
+# Define Your Quality Checklist
 for _, row in subs.iterrows():
     issues = []
 
@@ -87,7 +93,7 @@ for _, row in subs.iterrows():
         except:
             issues.append("Record count invalid")
 
-    # Check 7: Submission date format
+    # Check 7: Date format valid (submitted_on) 
     if not pd.isna(row['submitted_on']):
         try:
             pd.to_datetime(row['submitted_on'], format='%Y-%m-%d')
@@ -108,6 +114,7 @@ for _, row in subs.iterrows():
     flagged_df = pd.DataFrame(flagged_rows)
     clean_df = pd.DataFrame(clean_rows)
 
+# For each failing submission, produce a flagged output that lists: submission_id, department, dataset_title, and an issues column listing every check that failed (comma-separated)
     if not flagged_df.empty:
         flagged_df[['submission_id', 'department', 'dataset_title', 'issues']].to_csv(os.path.join(Base_Dir, 'data/processed/quality_flags.csv'), index=False)
     else:
@@ -117,9 +124,11 @@ for _, row in subs.iterrows():
         clean_df.to_csv(os.path.join(Base_Dir, 'data/processed/clean_submissions.csv'), index=False)
     else:
         subs.iloc[0:0].to_csv(os.path.join(Base_Dir, 'data/processed/clean_submissions.csv'), index=False)
-
+# Creates empty csv file in case of empty data frame. Avoids errors with streamlit dashboard 
 
 flagged_ids = set(flagged_df['submission_id']) if not flagged_df.empty else set()
+
+# 1.2 Cross-check Against Compliance Tracker
 
 mis_approved = []
 ready_to_approve = []
@@ -163,6 +172,7 @@ issue_counts = pd.Series(all_issues).value_counts() if all_issues else pd.Series
 
 os.makedirs(os.path.join(Base_Dir, 'data/processed'), exist_ok=True)
 
+# Produce a summary table: how many submissions are correctly Approved, correctly Pending, potentially mis-approved, and potentially ready to approve?
 
 summary_file_path = os.path.join(Base_Dir, 'data/processed/review_summary.txt')
 
@@ -179,6 +189,9 @@ with open(summary_file_path, 'w', encoding='utf-8') as f:
 flagged_df.to_pickle(os.path.join(Base_Dir, 'data/processed/flagged_df.pkl'))
 
 dict = {'Ready to Approve':ready_to_approve ,'Misapproved':mis_approved}
+
 to_check = pd.DataFrame(dict)
 
 to_check.to_csv(os.path.join(Base_Dir, 'data/processed/to_check.csv'), index=False)
+
+#to_check file contains details of conflict between both the sheets which can be manually reviewed

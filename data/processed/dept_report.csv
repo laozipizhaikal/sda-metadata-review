@@ -9,13 +9,13 @@ Transport Department,2,1,1,50.0,Yes,No,0
 Urban Development Department,2,1,1,50.0,Yes,No,0
 Agriculture Department,2,1,1,50.0,Yes,Yes,14
 Health Department,2,1,1,50.0,Yes,Yes,15
-Jal Shakti Department,1,1,0,100.0,N/A,No,0
-Finance Department,1,1,0,100.0,N/A,No,0
-Panchayati Raj Department,1,1,0,100.0,N/A,No,0
-Revenue Department,1,1,0,100.0,N/A,No,0
-Rural Development,1,1,0,100.0,N/A,No,0
-Social Welfare Department,1,1,0,100.0,N/A,No,0
-Stamp & Registration Dept.,1,1,0,100.0,N/A,No,0
-Environment Department,1,1,0,100.0,N/A,No,0
-Higher Education,1,1,0,100.0,N/A,No,0
-Irrigation Department,1,1,0,100.0,N/A,No,0
+Jal Shakti Department,1,1,0,100.0,Not Required,No,0
+Finance Department,1,1,0,100.0,Not Required,No,0
+Panchayati Raj Department,1,1,0,100.0,Not Required,No,0
+Revenue Department,1,1,0,100.0,Not Required,No,0
+Rural Development,1,1,0,100.0,Not Required,No,0
+Social Welfare Department,1,1,0,100.0,Not Required,No,0
+Stamp & Registration Dept.,1,1,0,100.0,Not Required,No,0
+Environment Department,1,1,0,100.0,Not Required,No,0
+Higher Education,1,1,0,100.0,Not Required,No,0
+Irrigation Department,1,1,0,100.0,Not Required,No,0
