@@ -5,7 +5,7 @@ channels:
   - defaults
 dependencies:
   - python=3.11
-  - sspyder-kernels
+  - spyder-kernels
   - pandas>=2.1
   - streamlit>=1.32
   - plotly
