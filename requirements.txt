@@ -1,5 +1,3 @@
-python
-spyder-kernels
 pandas
 streamlit
 plotly
